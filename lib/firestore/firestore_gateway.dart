@@ -73,14 +73,14 @@ class _FirestoreGatewayStreamCache {
 }
 
 class FirestoreGateway {
-  final FirebaseAuth? auth;
+  final TokenAuthenticator tokenAuthenticator;
   final String database;
 
   final Map<String, _FirestoreGatewayStreamCache> _listenRequestStreamMap;
 
   late FirestoreClient _client;
 
-  FirestoreGateway(String projectId, {String? databaseId, this.auth})
+  FirestoreGateway(String projectId, {String? databaseId, required this.tokenAuthenticator})
       : database =
             'projects/$projectId/databases/${databaseId ?? '(default)'}/documents',
         _listenRequestStreamMap = <String, _FirestoreGatewayStreamCache>{} {
@@ -204,7 +204,7 @@ class FirestoreGateway {
   void _setupClient() {
     _listenRequestStreamMap.clear();
     _client = FirestoreClient(ClientChannel('firestore.googleapis.com'),
-        options: TokenAuthenticator.from(auth)?.toCallOptions);
+        options: tokenAuthenticator.toCallOptions);
   }
 
   void _handleError(e) {
